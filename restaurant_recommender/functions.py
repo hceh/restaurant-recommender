@@ -4,8 +4,8 @@ from os.path import exists
 
 
 class BusinessDataSet:
-    def __init__(self, category: str = None):
-        self.data = self.get_data(category)
+    def __init__(self, category: str = None, state: str = None):
+        self.data = self.get_data(category, state)
 
     @staticmethod
     def read_full_data() -> pd.DataFrame:
@@ -21,10 +21,12 @@ class BusinessDataSet:
     def n_listings(self):
         return self.data.shape[0]
 
-    def get_data(self, category: str = None, df: pd.DataFrame = None) -> pd.DataFrame:
+    def get_data(self, category: str = None, state: str = None, df: pd.DataFrame = None) -> pd.DataFrame:
         df = df if df is not None else self.read_full_data()
         if category:
-            return df[df.categories.fillna('none').str.lower().str.contains(category.lower())]
+            df = df[df.categories.fillna('none').str.lower().str.contains(category.lower())]
+        if state:
+            df = df[df.state == state]
         return df
 
     def get_full_attribute_options(self):
