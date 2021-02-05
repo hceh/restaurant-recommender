@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from os.path import exists
 
 
 class BusinessDataSet:
@@ -8,7 +9,12 @@ class BusinessDataSet:
 
     @staticmethod
     def read_full_data() -> pd.DataFrame:
-        location = 'data/yelp_academic_dataset_business.json'
+        if exists('data/yelp_academic_dataset_business.json'):
+            location = 'data/yelp_academic_dataset_business.json'
+        elif exists('../data/yelp_academic_dataset_business.json'):
+            location = '../data/yelp_academic_dataset_business.json'
+        else:
+            raise FileNotFoundError("Can't find the data file, please run data converter")
         return pd.read_json(location, orient='records')
 
     @property
