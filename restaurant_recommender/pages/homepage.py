@@ -3,26 +3,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 
-from restaurant_recommender.functions import BusinessDataSet
+from restaurant_recommender.data_collector import BusinessDataSet
 
 base_data = BusinessDataSet(category='restaurant', state='ON')
 
 
-def get_categories(base):
-    categories = [_.split(', ') for _ in set(base.data.categories) if _ is not None]
-    categories = [item for sublist in categories for item in sublist]
-
-    # import pandas as pd
-    # from collections import Counter
-    # df_cat_counts = (pd.DataFrame
-    #                  .from_dict(dict(Counter(categories)), orient='index', columns=['count'])
-    #                  .sort_values('count', ascending=False))
-
-    return [{'value': _, 'id': _} for _ in categories]
-
-
 def create_location_map(df):
-
     fig = px.scatter_mapbox(
         df,
         lat='latitude',
@@ -68,5 +54,3 @@ layout = dbc.Container([
         ], width=8)
     ])
 ])
-
-

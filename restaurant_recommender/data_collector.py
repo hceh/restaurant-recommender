@@ -1,6 +1,8 @@
-import pandas as pd
 import re
+from collections import Counter
 from os.path import exists
+
+import pandas as pd
 
 
 class BusinessDataSet:
@@ -18,7 +20,7 @@ class BusinessDataSet:
         return pd.read_json(location, orient='records')
 
     @property
-    def n_listings(self):
+    def n_listings(self) -> int:
         return self.data.shape[0]
 
     def get_data(self, category: str = None, state: str = None, df: pd.DataFrame = None) -> pd.DataFrame:
@@ -29,7 +31,7 @@ class BusinessDataSet:
             df = df[df.state == state]
         return df
 
-    def get_full_attribute_options(self):
+    def get_full_attribute_options(self) -> set:
         options = set()
         print('Collecting attributes')
         for ix, row in self.data.iterrows():
@@ -48,3 +50,14 @@ class BusinessDataSet:
         options = {convert_attr_to_text(_) for _ in options}
 
         return options
+
+    def get_categories(self) -> list:
+        categories = [_.split(', ') for _ in set(self.data.categories) if _ is not None]
+        categories = [item for sublist in categories for item in sublist]
+        return categories
+
+    def get_categories_summary(self) -> pd.DataFrame:
+        categories = self.get_categories()
+        return (pd.DataFrame
+                .from_dict(dict(Counter(categories)), orient='index', columns=['count'])
+                .sort_values('count', ascending=False))
