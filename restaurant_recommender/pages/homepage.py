@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
+import plotly.graph_objects as go
 
 from restaurant_recommender.data_collector import BusinessDataSet
 
@@ -9,19 +9,24 @@ base_data = BusinessDataSet(category='restaurant', state='ON')
 
 
 def create_location_map(df):
-    fig = px.scatter_mapbox(
-        df,
-        lat='latitude',
-        lon='longitude',
-        hover_name='name',
-        hover_data=['address', 'postal_code', 'stars'],
-        zoom=8.5,
-        height=600,
-    )
+    fig = go.Figure(go.Scattermapbox(
+        lat=df.latitude,
+        lon=df.longitude,
+        mode='markers',
+        text=df.name + '<br>' + df.address + '<br>' + df.postal_code + '<br>Stars: ' + df.stars.astype(str),
+    ))
 
     fig.update_layout(
-        mapbox_style="open-street-map",
+        mapbox=dict(
+            style="open-street-map",
+            zoom=8.5,
+            center=go.layout.mapbox.Center(
+                lat=df.latitude.mean(),
+                lon=df.longitude.mean()
+            ),
+        ),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=600,
     )
 
     fig.update_geos(
