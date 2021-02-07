@@ -21,8 +21,8 @@ def create_location_map(df):
             style="open-street-map",
             zoom=8.5,
             center=go.layout.mapbox.Center(
-                lat=df.latitude.mean(),
-                lon=df.longitude.mean()
+                lat=(df.latitude.max() + df.latitude.min()) / 2,
+                lon=(df.longitude.max() + df.longitude.min()) / 2,
             ),
         ),
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
