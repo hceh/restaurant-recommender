@@ -20,7 +20,6 @@ def create_location_map(df):
     )
 
     fig.update_layout(
-        # title=f'Restaurants found in {state}',
         mapbox_style="open-street-map",
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
     )
@@ -37,13 +36,6 @@ layout = dbc.Container([
         dbc.Col([
             html.H2('Homepage'),
         ], width=8),
-        # dbc.Col([
-        #     dcc.Dropdown(
-        #         id='homepage-category-picker',
-        #         options=[{'label': _, 'value': _} for _ in get_categories(base_data)],
-        #         value='AZ'
-        #     )
-        # ], width=4)
     ]),
     dbc.Row([
         dbc.Col([
