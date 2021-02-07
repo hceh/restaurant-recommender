@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from restaurant_recommender.app import app
+from app import app
 from restaurant_recommender.pages import homepage, sidebar, settings
 
 app.layout = html.Div([
@@ -26,4 +26,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8000)
+    app.run_server(port=8002)

@@ -2,7 +2,7 @@ import dash
 import dash_trich_components as dtc
 from dash.dependencies import Input, Output, State
 
-from restaurant_recommender.app import app
+from app import app
 
 layout = dtc.SideBar([
     dtc.SideBarItem(id='btn_homepage', label="Homepage", icon="fas fa-home"),
