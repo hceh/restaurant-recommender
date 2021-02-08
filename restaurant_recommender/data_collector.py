@@ -61,3 +61,10 @@ class BusinessDataSet:
         return (pd.DataFrame
                 .from_dict(dict(Counter(categories)), orient='index', columns=['count'])
                 .sort_values('count', ascending=False))
+
+    def fix_values(self, col_name: str, replacements_dict: dict):
+        self.data[col_name] = self.data[col_name].replace(replacements_dict)
+
+    def get_cities(self) -> list:
+        cities = self.data.city.value_counts()
+        return list(cities.index)
