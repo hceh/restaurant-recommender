@@ -6,7 +6,7 @@ from app import app
 
 layout = dtc.SideBar([
     dtc.SideBarItem(id='btn_homepage', label="Homepage", icon="fas fa-home"),
-    dtc.SideBarItem(id='btn_2', label="Page 2", icon="fas fa-chart-line"),
+    dtc.SideBarItem(id='btn_2', label="Single", icon="fas fa-chart-line"),
     dtc.SideBarItem(id='btn_3', label="Page 3", icon="far fa-list-alt"),
     dtc.SideBarItem(id='btn_4', label="Page 4", icon="fas fa-info-circle"),
     dtc.SideBarItem(id='btn_settings', label="Settings", icon="fas fa-cog"),
@@ -25,9 +25,9 @@ layout = dtc.SideBar([
 def toggle_collapse(input1, input2, input3, input4, input5, url_curr): # todo: can I replace with *args or something?
     d_buttons = {
         'btn_homepage': '/#',
-        'id_2': '/#',
-        'id_3': '/#',
-        'id_4': '/#',
+        'btn_2': '/deep-dive',
+        'btn_3': '/#',
+        'btn_4': '/#',
         'btn_settings': '/settings',
     }
 

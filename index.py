@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from restaurant_recommender.pages import homepage, sidebar, settings
+from restaurant_recommender.pages import homepage, sidebar, settings, deep_dive
 
 app.layout = html.Div([
     sidebar.layout,
@@ -14,6 +14,7 @@ app.layout = html.Div([
 
 d_pages = {
     '/': homepage.layout,
+    '/deep-dive': deep_dive.layout,
     '/settings': settings.layout,
 }
 
