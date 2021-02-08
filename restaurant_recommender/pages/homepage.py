@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import numpy as np
 import plotly.graph_objects as go
 from dash.dependencies import Output, Input
 
@@ -70,9 +71,10 @@ layout = dbc.Container([
     html.Br(),
     dbc.Row([
         dbc.Col([
-            html.H2('Homepage'),
+            html.H2('Where to eat in Toronto?'),
         ], width=8),
     ]),
+    html.Br(),
     dbc.Row([
         dbc.Col([
             html.Br(),
@@ -86,22 +88,72 @@ layout = dbc.Container([
                     clearable=True,
                 ),
             ]),
+            html.Hr(),
+            dbc.FormGroup([
+                dbc.Label('Category Search', html_for='homepage-cat-search'),
+                dbc.Input(id='homepage-cat-search', placeholder='Try Poutine...', type='text')
+            ]),
+            html.Hr(),
+            dbc.FormGroup([
+                dbc.Label('Restaurant Search', html_for='homepage-rest-search'),
+                dbc.Input(id='homepage-rest-search', placeholder='Subway?', type='text')
+            ]),
+            html.Hr(),
+            dbc.FormGroup([
+                dbc.Label('Minimum Rating', html_for='homepage-star-min'),
+                dcc.Dropdown(
+                    id='homepage-star-minimum',
+                    options=[{'label': f'{_:.1f}', 'value': f'{_:.1f}'} for _ in np.arange(0, 5.1, 0.5)[::-1]],
+                    value='0.0',
+                    multi=False,
+                    clearable=False,
+                )
+            ]),
+            html.Hr(),
+            dcc.Loading([
+                html.H3(id='homepage-restaurant-num'),
+            ]),
+            html.P('Locations found')
         ], width=4),
         dbc.Col([
             dcc.Loading([
                 dcc.Graph(id='homepage-map', config=config)
             ])
         ], width=8)
-    ])
+    ]),
+    html.Br(),
+    html.Br(),
+    html.Br(),
 ])
 
 
 @app.callback(
-    Output('homepage-map', 'figure'),
-    [Input('homepage-city-selector', 'value')]
+    [
+        Output('homepage-map', 'figure'),
+        Output('homepage-restaurant-num', 'children')
+    ],
+    [
+        Input('homepage-city-selector', 'value'),
+        Input('homepage-cat-search', 'value'),
+        Input('homepage-rest-search', 'value'),
+        Input('homepage-star-minimum', 'value'),
+    ]
 )
-def filter_map_by_dropdown(cities):
+def filter_map_by_dropdown(cities, search, restaurant, stars):
     df = base_data.data.copy()
+
     if cities:
         df = df[df.city.isin(cities)]
-    return create_location_map(df)
+
+    if search:
+        for s in search.split(','):
+            s = s.lower().strip()
+            df = df[df.categories.str.lower().str.contains(s)]
+
+    if restaurant:
+        df = df[df['name'].str.lower().str.contains(restaurant.lower())]
+
+    if stars:
+        df = df[df['stars'] >= float(stars)]
+
+    return create_location_map(df), f'{df.shape[0]:,.0f}'
