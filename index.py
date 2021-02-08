@@ -6,10 +6,10 @@ from app import app
 from restaurant_recommender.pages import homepage, sidebar, settings
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
     sidebar.layout,
     html.Br(),
-    html.Div(id='page-content'),
+    html.Div(id='page_content'),
+    dcc.Location(id='url', refresh=False),
 ], style={'position': 'relative'})
 
 d_pages = {
@@ -19,7 +19,7 @@ d_pages = {
 
 
 # moving between pages 
-@app.callback(Output('page-content', 'children'),
+@app.callback(Output('page_content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
     return d_pages.get(pathname, homepage.layout)
