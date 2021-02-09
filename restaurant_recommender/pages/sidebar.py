@@ -6,7 +6,7 @@ from app import app
 
 layout = dtc.SideBar([
     dtc.SideBarItem(id='btn_homepage', label="Homepage", icon="fas fa-home"),
-    dtc.SideBarItem(id='btn_2', label="Single", icon="fas fa-chart-line"),
+    dtc.SideBarItem(id='btn_2', label="Single", icon="fas fa-cheeseburger"),
     dtc.SideBarItem(id='btn_3', label="Page 3", icon="far fa-list-alt"),
     dtc.SideBarItem(id='btn_4', label="Page 4", icon="fas fa-info-circle"),
     dtc.SideBarItem(id='btn_settings', label="Settings", icon="fas fa-cog"),
