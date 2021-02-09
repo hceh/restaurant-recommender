@@ -5,11 +5,20 @@ Adjust initial dataset path as necessary
 """
 
 from pathlib import Path
+from tkinter import filedialog, Tk
 
 import pandas as pd
 
-dataset_path = Path.home() / 'Downloads/yelp_dataset/'
-download_path = dataset_path / 'yelp_academic_dataset_business.json'
+
+def get_filepath():
+    root = Tk()
+    root.withdraw()
+    return filedialog.askopenfilename()
+
+
+# dataset_path = Path.home() / 'Downloads/yelp_dataset/'
+# download_path = dataset_path / 'yelp_academic_dataset_business.json'
+download_path = get_filepath()
 converted_path = Path('../../data/yelp_academic_dataset_business.json')
 
 with open(download_path, 'r') as f:  # ignore warning, open works with pathlib but isn't in hinting
