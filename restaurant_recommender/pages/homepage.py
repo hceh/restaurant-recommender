@@ -67,6 +67,28 @@ def create_location_map(df):
     return fig
 
 
+def card_creator(row):
+    card = dbc.Card(
+        dbc.CardBody(
+            [
+                html.H5(row['name'], className="card-title"),
+                html.P([
+                    row.address, html.Br(), row.city, html.Br(), row.postal_code, html.Br(),
+                    f'Stars: {row.stars:.1f}'
+                ], className='card-text'),
+                dbc.Button(
+                    "More info",
+                    color='primary',
+                    className="mt-auto",
+                    href=f'/deep-dive?id={row.business_id}',
+                    id=f'btn-{row.business_id}'
+                ),
+            ]
+        ), id=f'homepage-card-{row.business_id}'
+    )
+    return card
+
+
 layout = dbc.Container([
     html.Br(),
     dbc.Row([
@@ -110,9 +132,7 @@ layout = dbc.Container([
                 )
             ]),
             html.Hr(),
-            dcc.Loading([
-                html.H3(id='homepage-restaurant-num'),
-            ]),
+            html.H3(id='homepage-restaurant-num'),
             html.P('Locations found')
         ], width=4),
         dbc.Col([
@@ -122,6 +142,14 @@ layout = dbc.Container([
         ], width=8)
     ]),
     html.Br(),
+    html.Hr(),
+    html.H2('Top Suggestions'),
+    html.Br(),
+    dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-0'), width=12)]), html.Br(),
+    dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-1'), width=12)]), html.Br(),
+    dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-2'), width=12)]), html.Br(),
+    dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-3'), width=12)]), html.Br(),
+    dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-4'), width=12)]), html.Br(),
     html.Br(),
     html.Br(),
 ])
@@ -130,7 +158,12 @@ layout = dbc.Container([
 @app.callback(
     [
         Output('homepage-map', 'figure'),
-        Output('homepage-restaurant-num', 'children')
+        Output('homepage-restaurant-num', 'children'),
+        Output('homepage-deck-0', 'children'),
+        Output('homepage-deck-1', 'children'),
+        Output('homepage-deck-2', 'children'),
+        Output('homepage-deck-3', 'children'),
+        Output('homepage-deck-4', 'children'),
     ],
     [
         Input('homepage-city-selector', 'value'),
@@ -156,4 +189,9 @@ def filter_map_by_dropdown(cities, search, restaurant, stars):
     if stars:
         df = df[df['stars'] >= float(stars)]
 
-    return create_location_map(df), f'{df.shape[0]:,.0f}'
+    cards = [card_creator(row) for ix, row in df.head(20).iterrows()]
+
+    out_list = [create_location_map(df), f'{df.shape[0]:,.0f}']
+    out_list.extend([cards[i * 4:(i + 1) * 4] for i in range((len(cards) + 3) // 4)])
+
+    return out_list
