@@ -20,7 +20,7 @@ layout = dtc.SideBar([
      Input('btn_settings', 'n_clicks_timestamp')],
     [State('url', 'pathname')]
 )
-def toggle_collapse(input1, input2, input3, input4, input5, url_curr): # todo: can I replace with *args or something?
+def toggle_collapse(input1, input2, input3, input5, url_curr): # todo: can I replace with *args or something?
     d_buttons = {
         'btn_homepage': '/#',
         'btn_2': '/deep-dive',
