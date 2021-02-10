@@ -40,8 +40,17 @@ layout = dbc.Container([
 )
 def update_header(url):
     if '?' not in url:
-        return 'No specific tag specified'
-    params = parse_qs(url)
-    selected = base_data.data.loc[params.get('?id')].iloc[0]
+        selected = base_data.data.iloc[0]
+    else:
+        params = parse_qs(url)
+        selected = base_data.data.loc[params.get('?id')].iloc[0]
+
+    # todo:
+    #  mini map zoomed for location
+    #  opening hours
+    #  top reviews
+    #  description
+    #  similar restaurants
+    #  return to home button
 
     return selected['name']
