@@ -46,6 +46,7 @@ def create_location_map(df):
         lon=df.longitude,
         mode='markers',
         hovertemplate=df.hover,
+        customdata=df.name,  # names of series = business_id, not restaurant name
     ))
 
     fig.update_layout(
@@ -73,19 +74,18 @@ def card_creator(row):
         dbc.CardBody(
             [
                 html.H5(row['name'], className="card-title"),
-                html.P([
-                    row.address, html.Br(), row.categories, html.Br(), # row.city, html.Br(), row.postal_code, html.Br(),
-                    f'Rating: {row.stars:.1f} / Reviews: {row.review_count:,.0f}'
-                ], className='card-text'),
+                html.P([row.address], className='card-text'),
+                dbc.FormText([row.categories]), html.Br(),
+                html.P([f'Rating: {row.stars:.1f} / Reviews: {row.review_count:,.0f}'], className='card-text'),
                 dbc.Button(
                     "More info",
                     color='primary',
                     className="mt-auto",
-                    href=f'/deep-dive?id={row.business_id}',
-                    id=f'btn-{row.business_id}'
+                    href=f'/deep-dive?id={row.name}',
+                    id=f'btn-{row.name}'
                 ),
             ]
-        ), id=f'homepage-card-{row.business_id}'
+        ), id=f'homepage-card-{row.name}'
     )
     return card
 
