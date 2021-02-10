@@ -8,7 +8,7 @@ import pandas as pd
 import yaml
 from geopy.distance import distance
 
-with open('access-keys.yaml') as y:
+with open('../access-keys.yaml') as y:
     access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
 
 
@@ -35,8 +35,11 @@ class BusinessDataSet:
         data = res.read()
         data.decode('utf-8')
         out = data.decode('utf-8')
-        d = pd.read_json(out).at[0, 'data']
-        return d.get('latitude', 'n/a'), d.get('longitude', 'n/a')
+        d = pd.read_json(out).data.apply(pd.Series)
+        d = d[(d.country_code == 'CAN') & (d.region_code == 'ON')].reset_index(drop=True)
+        if d.shape[0] > 0:
+            return d.at[0, 'latitude'], d.at[0, 'longitude']
+        return 'Not found', 'Not found'
 
     @property
     def n_listings(self) -> int:
@@ -87,8 +90,3 @@ class BusinessDataSet:
     def get_cities(self) -> list:
         cities = self.data.city.value_counts()
         return list(cities.index)
-
-    def get_distance_from_coords(self, lat: float, long: float):
-        def get_distance(row):
-            return distance((row.latitude, row.longitude), (lat, long)).kilometers
-        self.data['custom_distance'] = self.data.apply(get_distance, axis=1)

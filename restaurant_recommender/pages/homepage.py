@@ -3,7 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 import plotly.graph_objects as go
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
+from geopy.distance import distance
 
 from app import app
 from restaurant_recommender.data_collector import BusinessDataSet
@@ -132,6 +133,21 @@ layout = dbc.Container([
                 )
             ]),
             html.Hr(),
+            dbc.InputGroup([
+                dbc.InputGroupAddon(
+                    dbc.Select(
+                        id='homepage-distance-from',
+                        options=[{'label': f'Within {_:.0f}km', 'value': _} for _ in [1, 2, 5, 10]],
+                        value=10
+                    ), addon_type='prepend'),
+                dbc.Input(
+                    id='homepage-address-lookup',
+                    placeholder='e.g. CN Tower'
+                ),
+            ]),
+            html.Br(),
+            dbc.Button('Search', id='homepage-address-lookup-btn', color='danger'),
+            html.Hr(),
             html.H3(id='homepage-restaurant-num'),
             html.P('Locations found')
         ], width=4),
@@ -170,9 +186,14 @@ layout = dbc.Container([
         Input('homepage-cat-search', 'value'),
         Input('homepage-rest-search', 'value'),
         Input('homepage-star-minimum', 'value'),
-    ]
+        Input('homepage-address-lookup-btn', 'n_clicks')
+    ],
+    [
+        State('homepage-address-lookup', 'value'),
+        State('homepage-distance-from', 'value')
+    ],
 )
-def filter_map_by_dropdown(cities, search, restaurant, stars):
+def filter_map_by_dropdown(cities, search, restaurant, stars, n, address, distance_km):
     df = base_data.data.copy()
 
     if cities:
@@ -188,6 +209,15 @@ def filter_map_by_dropdown(cities, search, restaurant, stars):
 
     if stars:
         df = df[df['stars'] >= float(stars)]
+
+    if address:
+        lat, long = base_data.get_coord_from_address(address)
+
+        def get_distance(row):
+            return distance((row.latitude, row.longitude), (lat, long)).kilometers
+
+        df['custom_distance'] = df.apply(get_distance, axis=1)
+        df = df[df.custom_distance <= float(distance_km)]
 
     cards = [card_creator(row) for ix, row in df.head(20).iterrows()]
 
