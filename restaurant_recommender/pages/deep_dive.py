@@ -40,7 +40,7 @@ layout = dbc.Container([
 )
 def update_header(url):
     if '?' not in url:
-        selected = base_data.data.iloc[0]
+        selected = base_data.data.nlargest(1, 'rank_value').iloc[0]
     else:
         params = parse_qs(url)
         selected = base_data.data.loc[params.get('?id')].iloc[0]
