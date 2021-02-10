@@ -17,7 +17,7 @@ except FileNotFoundError:
 
 class BusinessDataSet:
     def __init__(self, category: str = None, state: str = None):
-        self.data = self.get_data(category, state)
+        self.data = self.get_data(category, state).set_index('business_id')
         self.add_ranking_col()
 
     @staticmethod
