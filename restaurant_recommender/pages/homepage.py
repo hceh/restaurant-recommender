@@ -182,18 +182,18 @@ layout = dbc.Container([
         Output('homepage-deck-4', 'children'),
     ],
     [
-        Input('homepage-city-selector', 'value'),
-        Input('homepage-cat-search', 'value'),
-        Input('homepage-rest-search', 'value'),
-        Input('homepage-star-minimum', 'value'),
         Input('homepage-address-lookup-btn', 'n_clicks')
     ],
     [
+        State('homepage-city-selector', 'value'),
+        State('homepage-cat-search', 'value'),
+        State('homepage-rest-search', 'value'),
+        State('homepage-star-minimum', 'value'),
         State('homepage-address-lookup', 'value'),
         State('homepage-distance-from', 'value')
     ],
 )
-def filter_map_by_dropdown(cities, search, restaurant, stars, n, address, distance_km):
+def filter_map_by_dropdown(n, cities, search, restaurant, stars, address, distance_km):
     df = base_data.data.copy()
 
     if cities:
