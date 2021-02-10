@@ -1,8 +1,14 @@
+import http.client
 import re
+import urllib.parse
 from collections import Counter
 from os.path import exists
 
 import pandas as pd
+import yaml
+
+with open('access-keys.yaml') as y:
+    access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
 
 
 class BusinessDataSet:
@@ -18,6 +24,18 @@ class BusinessDataSet:
         else:
             raise FileNotFoundError("Can't find the data file, please run data converter")
         return pd.read_json(location, orient='records')
+
+    @staticmethod
+    def get_coord_from_address(address: str):
+        conn = http.client.HTTPConnection('api.positionstack.com')
+        params = urllib.parse.urlencode({'access_key': access_key, 'query': address})
+        conn.request('GET', f'/v1/forward?{params}')
+        res = conn.getresponse()
+        data = res.read()
+        data.decode('utf-8')
+        out = data.decode('utf-8')
+        d = pd.read_json(out).at[0, 'data']
+        return d.get('latitude', 'n/a'), d.get('longitude', 'n/a')
 
     @property
     def n_listings(self) -> int:
