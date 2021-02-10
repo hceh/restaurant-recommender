@@ -6,15 +6,19 @@ from os.path import exists
 
 import pandas as pd
 import yaml
-from geopy.distance import distance
 
-with open('../access-keys.yaml') as y:
-    access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
+try:
+    with open('../access-keys.yaml') as y:
+        access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
+except FileNotFoundError:
+    with open('access-keys.yaml') as y:
+        access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
 
 
 class BusinessDataSet:
     def __init__(self, category: str = None, state: str = None):
         self.data = self.get_data(category, state)
+        self.add_ranking_col()
 
     @staticmethod
     def read_full_data() -> pd.DataFrame:
@@ -44,6 +48,9 @@ class BusinessDataSet:
     @property
     def n_listings(self) -> int:
         return self.data.shape[0]
+
+    def add_ranking_col(self):
+        self.data['rank_value'] = self.data.review_count / (5.1 - self.data.stars)
 
     def get_data(self, category: str = None, state: str = None, df: pd.DataFrame = None) -> pd.DataFrame:
         df = df if df is not None else self.read_full_data()

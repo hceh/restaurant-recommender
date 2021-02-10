@@ -34,7 +34,7 @@ config = {
 
 
 def create_location_map(df):
-    hover_template = '<b>{}</b><br>{}<br>{}<br>{}<br>Stars: {:.1f}<extra></extra>'
+    hover_template = '<b>{}</b><br>{}<br>{}<br>{}<br>Rating: {:.1f}<extra></extra>'
 
     df['hover'] = [
         hover_template.format(row['name'], row.address, row.city, row.postal_code, row.stars)
@@ -74,8 +74,8 @@ def card_creator(row):
             [
                 html.H5(row['name'], className="card-title"),
                 html.P([
-                    row.address, html.Br(), row.city, html.Br(), row.postal_code, html.Br(),
-                    f'Stars: {row.stars:.1f}'
+                    row.address, html.Br(), row.categories, html.Br(), # row.city, html.Br(), row.postal_code, html.Br(),
+                    f'Rating: {row.stars:.1f} / Reviews: {row.review_count:,.0f}'
                 ], className='card-text'),
                 dbc.Button(
                     "More info",
@@ -193,7 +193,7 @@ layout = dbc.Container([
         State('homepage-distance-from', 'value')
     ],
 )
-def filter_map_by_dropdown(n, cities, search, restaurant, stars, address, distance_km):
+def filter_map_by_dropdown(_, cities, search, restaurant, stars, address, distance_km):
     df = base_data.data.copy()
 
     if cities:
@@ -219,7 +219,7 @@ def filter_map_by_dropdown(n, cities, search, restaurant, stars, address, distan
         df['custom_distance'] = df.apply(get_distance, axis=1)
         df = df[df.custom_distance <= float(distance_km)]
 
-    cards = [card_creator(row) for ix, row in df.head(20).iterrows()]
+    cards = [card_creator(row) for ix, row in df.nlargest(20, 'rank_value').iterrows()]
 
     out_list = [create_location_map(df), f'{df.shape[0]:,.0f}']
     out_list.extend([cards[i * 4:(i + 1) * 4] for i in range((len(cards) + 3) // 4)])
