@@ -6,6 +6,7 @@ from os.path import exists
 
 import pandas as pd
 import yaml
+from geopy.distance import distance
 
 with open('access-keys.yaml') as y:
     access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
@@ -86,3 +87,8 @@ class BusinessDataSet:
     def get_cities(self) -> list:
         cities = self.data.city.value_counts()
         return list(cities.index)
+
+    def get_distance_from_coords(self, lat: float, long: float):
+        def get_distance(row):
+            return distance((row.latitude, row.longitude), (lat, long)).kilometers
+        self.data['custom_distance'] = self.data.apply(get_distance, axis=1)
