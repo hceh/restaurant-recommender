@@ -1,8 +1,10 @@
 from urllib.parse import parse_qs
 
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import plotly.graph_objects as go
 
 from app import app
 from restaurant_recommender.data_collector import BusinessDataSet
@@ -25,10 +27,39 @@ cities_fix = {
 }
 base_data.fix_values('city', cities_fix)
 
+
 def create_citymapper_link(row):
     return f'https://citymapper.com/directions?endcoord={row.latitude}%2C{row.longitude}&' \
            f"endname={row['name'].replace(' ', '%20')}&" \
            f"endaddress={row.address.replace(' ', '%20').replace(',', '%2C')}%2C%20{row.city}%2C%20{row.postal_code}"
+
+
+def create_location_map(df):
+    hover_template = '<b>{}</b><br>{}<br>{}<br>{}<br>Rating: {:.1f}<extra></extra>'
+
+    df['hover'] = hover_template.format(df['name'], df.address, df.city, df.postal_code, df.stars)
+
+    fig = go.Figure(go.Scattermapbox(
+        lat=[df.latitude],
+        lon=[df.longitude],
+        mode='markers',
+        hovertemplate=[df.hover],
+    ))
+
+    fig.update_layout(
+        mapbox=dict(
+            style="open-street-map",
+            zoom=15,
+            center=go.layout.mapbox.Center(
+                lat=df.latitude,
+                lon=df.longitude,
+            ),
+        ),
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=400,
+    )
+
+    return fig
 
 
 layout = dbc.Container([
@@ -37,6 +68,13 @@ layout = dbc.Container([
             html.H2(id='deep-dive-header')
         ])
     ]),
+    html.Br(),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(id='deep-dive-map')
+        ], width=6)
+    ]),
+    html.Br(),
     dbc.Row([
         dbc.Col([
             dbc.Button(
@@ -47,14 +85,20 @@ layout = dbc.Container([
                 block=True,
             )
         ], width=3)
-    ])
+    ]),
+    html.Br(),
 ])
 
 
 @app.callback(
-    [Output('deep-dive-header', 'children'),
-     Output('citymapper-link', 'href')],
-    [Input('url', 'search')]
+    [
+        Output('deep-dive-header', 'children'),
+        Output('citymapper-link', 'href'),
+        Output('deep-dive-map', 'figure'),
+    ],
+    [
+        Input('url', 'search')
+    ]
 )
 def update_header(url):
     if '?' not in url:
@@ -64,12 +108,10 @@ def update_header(url):
         selected = base_data.data.loc[params.get('?id')].iloc[0]
 
     # todo:
-    #  mini map zoomed for location
     #  opening hours
     #  top reviews
     #  description
     #  similar restaurants
     #  return to home button
-    #  citymapper link using https://citymapper.com/tools/1053/launch-citymapper-for-directions
 
-    return selected['name'], create_citymapper_link(selected)
+    return selected['name'], create_citymapper_link(selected), create_location_map(selected)
