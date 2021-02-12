@@ -34,6 +34,22 @@ def create_citymapper_link(row):
            f"endaddress={row.address.replace(' ', '%20').replace(',', '%2C')}%2C%20{row.city}%2C%20{row.postal_code}"
 
 
+def create_hours_table(hours: dict):
+    table_header = [
+        html.Thead(html.Tr([html.Th("Day"), html.Th("Hours")]))
+    ]
+
+    table_body = list()
+    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
+        if day in hours:
+            table_body.append(html.Tr([html.Td(day), html.Td(hours[day].replace(':0', ':00'))]))
+        else:
+            table_body.append(html.Tr([html.Td(day), html.Td('Closed')]))
+
+    table = dbc.Table(table_header + [html.Tbody(table_body)], bordered=True)
+    return table
+
+
 def create_location_map(df):
     hover_template = '<b>{}</b><br>{}<br>{}<br>{}<br>Rating: {:.1f}<extra></extra>'
 
@@ -44,6 +60,7 @@ def create_location_map(df):
         lon=[df.longitude],
         mode='markers',
         hovertemplate=[df.hover],
+        marker=go.scattermapbox.Marker(size=14, color='rgb(255, 0, 0)', opacity=0.7),
     ))
 
     fig.update_layout(
@@ -72,7 +89,8 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             dcc.Graph(id='deep-dive-map')
-        ], width=6)
+        ], width=6),
+        dbc.Col(id='deep-dive-hours', width={'offset': 3, 'size': 3}),
     ]),
     html.Br(),
     dbc.Row([
@@ -95,6 +113,7 @@ layout = dbc.Container([
         Output('deep-dive-header', 'children'),
         Output('citymapper-link', 'href'),
         Output('deep-dive-map', 'figure'),
+        Output('deep-dive-hours', 'children')
     ],
     [
         Input('url', 'search')
@@ -114,4 +133,5 @@ def update_header(url):
     #  similar restaurants
     #  return to home button
 
-    return selected['name'], create_citymapper_link(selected), create_location_map(selected)
+    return selected['name'], create_citymapper_link(selected), create_location_map(selected), \
+           create_hours_table(selected.hours)
