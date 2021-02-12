@@ -25,17 +25,35 @@ cities_fix = {
 }
 base_data.fix_values('city', cities_fix)
 
+def create_citymapper_link(row):
+    return f'https://citymapper.com/directions?endcoord={row.latitude}%2C{row.longitude}&' \
+           f"endname={row['name'].replace(' ', '%20')}&" \
+           f"endaddress={row.address.replace(' ', '%20').replace(',', '%2C')}%2C%20{row.city}%2C%20{row.postal_code}"
+
+
 layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H2(id='deep-dive-header')
         ])
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dbc.Button(
+                'Open in Citymapper',
+                id='citymapper-link',
+                color='success',
+                className='mr-1',
+                block=True,
+            )
+        ], width=3)
     ])
 ])
 
 
 @app.callback(
-    Output('deep-dive-header', 'children'),
+    [Output('deep-dive-header', 'children'),
+     Output('citymapper-link', 'href')],
     [Input('url', 'search')]
 )
 def update_header(url):
@@ -54,4 +72,4 @@ def update_header(url):
     #  return to home button
     #  citymapper link using https://citymapper.com/tools/1053/launch-citymapper-for-directions
 
-    return selected['name']
+    return selected['name'], create_citymapper_link(selected)
