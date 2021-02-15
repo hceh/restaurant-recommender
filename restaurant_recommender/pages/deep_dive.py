@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 
 from app import app
-from restaurant_recommender.data_collector import BusinessDataSet
+from restaurant_recommender.data_collector import BusinessDataSet, project_root
 
 base_data = BusinessDataSet(category='restaurant', state='ON')
 cities_fix = {
@@ -82,15 +82,15 @@ def create_location_map(df):
 
 
 def get_review_data(business_id: str) -> pd.DataFrame:
-    query = f"SELECT * FROM REVIEWS WHERE BUSINESS_ID = {business_id}"
+    query = f"SELECT * FROM REVIEWS WHERE REVIEWS.BUSINESS_ID = '{business_id}' LIMIT 200"
     conn = None
     try:
-        conn = sqlite3.connect('data/reviews.sqlite')
+        conn = sqlite3.connect(project_root / 'data/reviews.sqlite')
         print("Connection to SQLite DB successful")
     except sqlite3.Error as e:
         print(f"The error '{e}' occurred")
 
-    df = pd.read_sql(query, conn)
+    df = pd.read_sql(query, conn, parse_dates={'DATE':'%Y-%m-%d %H:%M:%S'})
     return df
 
 
