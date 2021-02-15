@@ -2,17 +2,19 @@ import http.client
 import re
 import urllib.parse
 from collections import Counter
-from os.path import exists
+from pathlib import Path
 
 import pandas as pd
 import yaml
 
-try:
-    with open('../access-keys.yaml') as y:
-        access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
-except FileNotFoundError:
-    with open('access-keys.yaml') as y:
-        access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
+project_root = Path(__file__).parents[1]
+access_file = project_root / 'access-keys.yaml'
+
+if not access_file.exists():
+    exit('Please create yaml file per the Readme')
+
+with open(access_file) as y:
+    access_key = yaml.load(y, Loader=yaml.FullLoader).get('position-stack', '')
 
 
 class BusinessDataSet:
@@ -22,11 +24,8 @@ class BusinessDataSet:
 
     @staticmethod
     def read_full_data() -> pd.DataFrame:
-        if exists('data/yelp_academic_dataset_business.json'):
-            location = 'data/yelp_academic_dataset_business.json'
-        elif exists('../data/yelp_academic_dataset_business.json'):
-            location = '../data/yelp_academic_dataset_business.json'
-        else:
+        location = project_root / 'data/yelp_academic_dataset_business.json'
+        if not location.exists():
             raise FileNotFoundError("Can't find the data file, please run data converter")
         return pd.read_json(location, orient='records')
 
