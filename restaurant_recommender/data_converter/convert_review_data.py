@@ -1,9 +1,12 @@
+import json
 import sqlite3
+from pathlib import Path
 from sqlite3 import Error
 from tkinter import filedialog, Tk
 
 import pandas as pd
-import json
+
+from restaurant_recommender.data_collector import BusinessDataSet
 
 
 def get_filepath():
@@ -12,10 +15,10 @@ def get_filepath():
     return filedialog.askopenfilename()
 
 
-def rows(f, chunk_size=2048, sep='|'):
+def rows(ff, chunk_size=2048, sep='\n'):
     curr_row = ''
     while True:
-        chunk = f.read(chunk_size)
+        chunk = ff.read(chunk_size)
         if chunk == '':  # End of file
             yield curr_row
             break
@@ -40,19 +43,25 @@ def create_connection(path):
     return conn
 
 
-def execute_query(connection, query):
-    cursor = connection.cursor()
+def execute_query(conn, query):
+    cursor = conn.cursor()
     try:
         cursor.execute(query)
-        connection.commit()
+        conn.commit()
         print('Successful query execution')
     except Error as e:
         print(f'The error {e} occurred')
 
 
+def get_req_ids(cat: str = 'restaurant', state: str = 'ON') -> set:
+    ds = BusinessDataSet(cat, state)
+    ids = set(ds.data.index)
+    return ids
+
+
 create_table = """
 CREATE TABLE IF NOT EXISTS REVIEWS (
-  REVIEW_ID TEXT NOT NULL,
+  REVIEW_ID TEXT PRIMARY KEY NOT NULL,
   USER_ID TEXT,
   BUSINESS_ID TEXT,
   STARS NUMERIC,
@@ -64,20 +73,21 @@ CREATE TABLE IF NOT EXISTS REVIEWS (
 );
 """
 
-database_path = '../../data/reviews.sqlite'
+database_path = Path(__file__).parents[2] / 'data/reviews.sqlite'
 
 connection = create_connection(database_path)
 execute_query(connection, create_table)
 
 download_path = get_filepath()
+local_ids = get_req_ids()
 
 with open(download_path, 'r') as f:
     total_rows = 0
     total_errors = 0
     for row in rows(f):
-        conv_list = list()
-        error_list = list()
+        conv_list = error_list = list()
         conv = row.split('\n')
+
         for c in conv:
             try:
                 j = json.loads(c)
@@ -91,5 +101,7 @@ with open(download_path, 'r') as f:
             df = pd.DataFrame(conv_list)
             df.columns = [_.upper() for _ in df.columns]
             df = df.rename(columns={'TEXT': 'REVIEW'})
-            df.to_sql(name='REVIEWS', con=connection, index=False, if_exists='append')
-            total_rows += len(conv_list)
+            # df = df[df.BUSINESS_ID.isin(local_ids)]
+            if len(df) > 0:
+                df.to_sql(name='REVIEWS', con=connection, index=False, if_exists='append')
+                total_rows += df.shape[0]
