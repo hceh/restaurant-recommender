@@ -1,10 +1,12 @@
+import sqlite3
 from urllib.parse import parse_qs
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+import pandas as pd
 import plotly.graph_objects as go
+from dash.dependencies import Input, Output
 
 from app import app
 from restaurant_recommender.data_collector import BusinessDataSet
@@ -77,6 +79,19 @@ def create_location_map(df):
     )
 
     return fig
+
+
+def get_review_data(business_id: str) -> pd.DataFrame:
+    query = f"SELECT * FROM REVIEWS WHERE BUSINESS_ID = {business_id}"
+    conn = None
+    try:
+        conn = sqlite3.connect('data/reviews.sqlite')
+        print("Connection to SQLite DB successful")
+    except sqlite3.Error as e:
+        print(f"The error '{e}' occurred")
+
+    df = pd.read_sql(query, conn)
+    return df
 
 
 layout = dbc.Container([
