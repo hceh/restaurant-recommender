@@ -1,7 +1,6 @@
 """
 Data is downloaded and unzipped from https://www.yelp.com/dataset
 The json files are not suitable to read straight into pandas (not comma seperated or in list), so the following code must be used
-Adjust initial dataset path as necessary
 """
 
 from pathlib import Path
@@ -16,8 +15,6 @@ def get_filepath():
     return filedialog.askopenfilename()
 
 
-# dataset_path = Path.home() / 'Downloads/yelp_dataset/'
-# download_path = dataset_path / 'yelp_academic_dataset_business.json'
 download_path = get_filepath()
 converted_path = Path('../../data/yelp_academic_dataset_business.json')
 
