@@ -36,6 +36,7 @@ config = {
     'modeBarButtonsToRemove': ['zoom2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'toggleSpikelines']
 }
 
+
 def create_citymapper_link(row):
     return f'https://citymapper.com/directions?endcoord={row.latitude}%2C{row.longitude}&' \
            f"endname={row['name'].replace(' ', '%20')}&" \
@@ -43,17 +44,19 @@ def create_citymapper_link(row):
 
 
 def create_hours_table(hours: dict):
-    table_header = [html.Thead(html.Tr([html.Th("Day"), html.Th("Hours")]))]
+    header_values = ['Day:', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    table_header = [html.Thead(html.Tr([html.Th(_) for _ in header_values]))]
 
-    table_body = list()
+    row = [html.Td('Hours:')]
     for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
         if day in hours:
-            table_body.append(html.Tr([html.Td(day), html.Td(hours[day].replace(':0', ':00'))]))
+            row.append(html.Td(hours[day].replace(':0', ':00')))
         else:
-            table_body.append(html.Tr([html.Td(day), html.Td('Closed')]))
+            row.append(html.Td('Closed'))
+    row = html.Tr(row)
 
     table = dbc.Table(
-        table_header + [html.Tbody(table_body)],
+        table_header + [html.Tbody(row)],
         bordered=True,
         hover=True,
         responsive=True,
@@ -142,19 +145,17 @@ def get_location_attributes(loc: pd.Series):
     return d_dicts, d_strs
 
 
-def create_attributes_table(d: dict):
-    table_header = [html.Thead(html.Tr([html.Th("Feature"), html.Th("Status")]))]
-    table_body = list()
-    for att in d:
-        table_body.append(html.Tr([html.Td(att), html.Td(d[att])]))
-    table = dbc.Table(
-        table_header + [html.Tbody(table_body)],
-        bordered=True,
-        striped=True,
-        responsive=True,
-        hover=True
-    )
-    return table
+def create_attributes_detail(s: dict, d: dict):
+    body = list()
+    for att in s:
+        body.append(html.P(f'{att} - {s[att]}'))
+    f_s = list()
+    for item in d:
+        f = d[item]
+        trues = [_.title() for _ in f if f[_]]
+        f_s.append({item: trues})
+        body.append(html.P(f'{item.title()} - {", ".join(trues)}'))
+    return body[:10]
 
 
 layout = dbc.Container([
@@ -166,36 +167,38 @@ layout = dbc.Container([
     html.Br(),
     dbc.Row([
         dbc.Col([
-            dbc.Row([
-                dbc.Col([
-                    dcc.Graph(id='deep-dive-map', config=config)
-                ], width=12)
-            ]),
-            html.Br(),
-            dbc.Row([
-                dbc.Col([
-                    dbc.Button(
-                        'Open in Citymapper',
-                        id='citymapper-link',
-                        color='success',
-                        className='mr-1',
-                        block=True,
-                    )
-                ], width=6),
-                dbc.Col([
-                    dbc.Button(
-                        'Return to Home',
-                        id='deep-dive-home-link',
-                        color='primary',
-                        className='mr-1',
-                        block=True,
-                        href='/',
-                    )
-                ], width=6),
-            ]),
+            dcc.Graph(id='deep-dive-map', config=config)
         ], width=6),
-        dbc.Col(id='deep-dive-attributes-table', width=3),
-        dbc.Col(id='deep-dive-hours', width=3),
+        dbc.Col([
+            html.H4('About'),
+            dbc.Row([
+                dbc.Col(id='deep-dive-attributes-table', width=6),
+                dbc.Col(id='deep-dive-attributes-table-2', width=6),
+            ])
+        ], width=6),
+    ]),
+    html.Br(),
+    dbc.Row([
+        dbc.Col([
+            dbc.Row([
+                dbc.Button(
+                    'Open in Citymapper',
+                    id='citymapper-link',
+                    color='success',
+                    className='mr-1',
+                    block=True,
+                ),
+                dbc.Button(
+                    'Return to Home',
+                    id='deep-dive-home-link',
+                    color='primary',
+                    className='mr-1',
+                    block=True,
+                    href='/',
+                ),
+            ])
+        ], width=3),
+        dbc.Col(id='deep-dive-hours', width=9),
     ]),
     html.Br(),
     html.Br(),
@@ -210,6 +213,7 @@ layout = dbc.Container([
         Output('deep-dive-map', 'figure'),
         Output('deep-dive-hours', 'children'),
         Output('deep-dive-attributes-table', 'children'),
+        Output('deep-dive-attributes-table-2', 'children'),
     ],
     [
         Input('url', 'search')
@@ -229,5 +233,9 @@ def update(url):
 
     dicts, strs = get_location_attributes(selected)
 
+    attributes = create_attributes_detail(strs, dicts)
+    a1 = attributes[:10]
+    a2 = attributes[10:]
+
     return selected['name'], create_citymapper_link(selected), create_location_map(selected), \
-           create_hours_table(selected.hours), create_attributes_table(strs)
+           create_hours_table(selected.hours), a1, a2
