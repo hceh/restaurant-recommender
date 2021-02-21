@@ -27,4 +27,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8002)
+    app.run_server(port=8003)

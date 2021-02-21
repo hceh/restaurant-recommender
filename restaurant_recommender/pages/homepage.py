@@ -5,6 +5,7 @@ import numpy as np
 import plotly.graph_objects as go
 from dash.dependencies import Output, Input, State
 from geopy.distance import distance
+from dash import callback_context
 
 from app import app
 from restaurant_recommender.data_collector import BusinessDataSet
@@ -46,7 +47,8 @@ def create_location_map(df):
         lon=df.longitude,
         mode='markers',
         hovertemplate=df.hover,
-        customdata=df.name,  # names of series = business_id, not restaurant name
+        customdata=df.index,
+        marker=dict(color='#9c1919', opacity=0.7)
     ))
 
     fig.update_layout(
@@ -167,6 +169,7 @@ layout = dbc.Container([
     dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-3'), width=12)]), html.Br(),
     dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-4'), width=12)]), html.Br(),
     html.Br(),
+    html.Div(id='testing'),
     html.Br(),
 ])
 
@@ -222,6 +225,24 @@ def filter_map_by_dropdown(_, cities, search, restaurant, stars, address, distan
     cards = [card_creator(row) for ix, row in df.nlargest(20, 'rank_value').iterrows()]
 
     out_list = [create_location_map(df), f'{df.shape[0]:,.0f}']
-    out_list.extend([cards[i * 4:(i + 1) * 4] for i in range((len(cards) + 3) // 4)])
 
+    card_deck_list = [[]] * 5
+    for i in range((len(cards) + 3) // 4):
+        card_deck_list[i] = cards[i * 4:(i + 1) * 4]
+    out_list.extend(card_deck_list)
     return out_list
+
+
+@app.callback(
+    # Output('url', 'pathname'),
+    Output('testing', 'children'),
+    Input('homepage-map', 'clickData'),
+    State('url', 'pathname'),
+)
+def display_click_data(clicked_point, curr_url):
+    if callback_context.triggered and clicked_point is not None:
+        click_id = clicked_point['points'][0]['customdata']
+        url_new = f'/deep-dive?id={click_id}'
+        return url_new
+    else:
+        return curr_url

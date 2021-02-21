@@ -75,7 +75,7 @@ def create_location_map(df):
         lon=[df.longitude],
         mode='markers',
         hovertemplate=[df.hover],
-        marker=go.scattermapbox.Marker(size=14, color='rgb(255, 0, 0)', opacity=0.7),
+        marker=go.scattermapbox.Marker(size=14, color='#9c1919', opacity=0.7),
     ))
 
     fig.update_layout(
