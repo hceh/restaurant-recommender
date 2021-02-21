@@ -6,27 +6,23 @@ from app import app
 
 layout = dtc.SideBar([
     dtc.SideBarItem(id='btn_homepage', label="Homepage", icon="fas fa-home"),
-    dtc.SideBarItem(id='btn_2', label="Single", icon="fas fa-list-alt"),
-    dtc.SideBarItem(id='btn_3', label="Page 3", icon="fas fa-info-circle"),
-    dtc.SideBarItem(id='btn_settings', label="Settings", icon="fas fa-cog"),
-])
+    dtc.SideBarItem(id='btn_detail', label="Detail", icon="fas fa-list-alt"),
+    dtc.SideBarItem(id='btn_info', label="Info", icon="fas fa-info-circle"),
+], bg_color='#9c1919', text_color='#ffffff')
 
 
 @app.callback(
     Output('url', 'pathname'),
     [Input('btn_homepage', 'n_clicks_timestamp'),
-     Input('btn_2', 'n_clicks_timestamp'),
-     Input('btn_3', 'n_clicks_timestamp'),
-     Input('btn_settings', 'n_clicks_timestamp')],
+     Input('btn_detail', 'n_clicks_timestamp'),
+     Input('btn_info', 'n_clicks_timestamp')],
     [State('url', 'pathname')]
 )
-def toggle_collapse(input1, input2, input3, input5, url_curr): # todo: can I replace with *args or something?
+def toggle_collapse(input1, input2, input3, url_curr):  # todo: can I replace with *args or something?
     d_buttons = {
         'btn_homepage': '/#',
-        'btn_2': '/deep-dive',
-        'btn_3': '/#',
-        'btn_4': '/#',
-        'btn_settings': '/settings',
+        'btn_detail': '/deep-dive',
+        'btn_info': '/info',
     }
 
     ctx = dash.callback_context
