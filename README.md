@@ -1,7 +1,5 @@
 # Restaurant Recommendation App
 
-## What is this app?
-
 Making use of the [Yelp open-source data set][0], this app provides a restaurant recommendation service for the Toronto
 area. You are able to search by town, restaurant category, rating and distance from a specified location. The app then
 gives recommendations of restaurants that fit those parameters, ranking them according to both their rating and number
