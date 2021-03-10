@@ -36,7 +36,6 @@ class BusinessDataSet:
         conn.request('GET', f'/v1/forward?{params}')
         res = conn.getresponse()
         data = res.read()
-        data.decode('utf-8')
         out = data.decode('utf-8')
         d = pd.read_json(out).data.apply(pd.Series)
         d = d[(d.country_code == 'CAN') & (d.region_code == 'ON')].reset_index(drop=True)
