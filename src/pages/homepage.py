@@ -7,8 +7,8 @@ from dash.dependencies import Output, Input, State
 from geopy.distance import distance
 from dash import callback_context
 
-from app import app
-from restaurant_recommender.data_collector import BusinessDataSet
+from config import app
+from src.data_collector import BusinessDataSet
 
 base_data = BusinessDataSet(category='restaurant', state='ON')
 cities_fix = {

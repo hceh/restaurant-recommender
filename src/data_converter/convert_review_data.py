@@ -6,7 +6,7 @@ from tkinter import filedialog, Tk
 
 import pandas as pd
 
-from restaurant_recommender.data_collector import BusinessDataSet
+from src.data_collector import BusinessDataSet
 
 
 def get_filepath():

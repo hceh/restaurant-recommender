@@ -2,7 +2,7 @@ import dash
 import dash_trich_components as dtc
 from dash.dependencies import Input, Output, State
 
-from app import app
+from config import app
 
 layout = dtc.SideBar([
     dtc.SideBarItem(id='btn_homepage', label="Homepage", icon="fas fa-home"),

@@ -10,8 +10,8 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 
-from app import app
-from restaurant_recommender.data_collector import BusinessDataSet, project_root
+from config import app
+from src.data_collector import BusinessDataSet, project_root
 
 base_data = BusinessDataSet(category='restaurant', state='ON')
 cities_fix = {
