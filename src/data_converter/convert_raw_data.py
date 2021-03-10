@@ -1,6 +1,7 @@
 """
-Data is downloaded and unzipped from https://www.yelp.com/dataset
-The json files are not suitable to read straight into pandas (not comma seperated or in list), so the following code must be used
+- Data is downloaded and unzipped from https://www.yelp.com/dataset
+- The json files are not suitable to read straight into pandas (not comma seperated or in list), so the following code
+  must be used
 """
 
 from pathlib import Path

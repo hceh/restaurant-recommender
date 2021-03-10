@@ -169,7 +169,7 @@ layout = dbc.Container([
     dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-3'), width=12)]), html.Br(),
     dbc.Row([dbc.Col(dbc.CardDeck(id=f'homepage-deck-4'), width=12)]), html.Br(),
     html.Br(),
-    html.Div(id='testing'),
+    html.Div(id='testing', hidden=True),
     html.Br(),
 ])
 
