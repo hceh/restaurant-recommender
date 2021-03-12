@@ -5,7 +5,7 @@ area. You are able to search by town, restaurant category, rating and distance f
 gives recommendations of restaurants that fit those parameters, ranking them according to both their rating and number
 of reviews. You can then get directions from Citymapper to the location.
 
-## Screenshots
+## Screenshots
 
 ![activity page](assets/screenshots/homepage.png)
 
@@ -13,7 +13,7 @@ of reviews. You can then get directions from Citymapper to the location.
 
 ![single page](assets/screenshots/single-view.png)
 
-## Requirements
+## Requirements
 
 You will need to download the dataset from the link above, and convert it to a readable `json` format via 
 `data_converter/convert_raw_data.py` 
