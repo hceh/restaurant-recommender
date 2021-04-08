@@ -16,24 +16,26 @@ def get_filepath():
     return filedialog.askopenfilename()
 
 
-download_path = get_filepath()
-converted_path = Path('../../data/yelp_academic_dataset_business.json')
+if __name__ == '__main__':
 
-with open(download_path, 'r') as f:  # ignore warning, open works with pathlib but isn't in hinting
-    json_lines = f.readlines()
+    download_path = get_filepath()
+    converted_path = Path('../../data/yelp_academic_dataset_business.json')
 
-json_lines = [_.replace('\n', ',\n') for _ in json_lines]
-json_lines[0] = '[' + json_lines[0]
-json_lines[-1] = json_lines[-1] + ']'
+    with open(download_path, 'r') as f:  # ignore warning, open works with pathlib but isn't in hinting
+        json_lines = f.readlines()
 
-converted_path.parent.mkdir(exist_ok=True)
+    json_lines = [_.replace('\n', ',\n') for _ in json_lines]
+    json_lines[0] = '[' + json_lines[0]
+    json_lines[-1] = json_lines[-1] + ']'
 
-with open(converted_path, 'w') as f:
-    f.writelines(json_lines)
+    converted_path.parent.mkdir(exist_ok=True)
 
-# test dataset
-try:
-    df = pd.read_json(converted_path, orient='records')
-    print('Conversion successful')
-except ValueError:
-    print('Conversion failed')
+    with open(converted_path, 'w') as f:
+        f.writelines(json_lines)
+
+    # test dataset
+    try:
+        df = pd.read_json(converted_path, orient='records')
+        print('Conversion successful')
+    except ValueError:
+        print('Conversion failed')
