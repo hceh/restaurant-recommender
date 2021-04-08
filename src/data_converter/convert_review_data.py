@@ -58,50 +58,51 @@ def get_req_ids(cat: str = 'restaurant', state: str = 'ON') -> set:
     ids = set(ds.data.index)
     return ids
 
+if __name__ == '__main__':
 
-create_table = """
-CREATE TABLE IF NOT EXISTS REVIEWS (
-  REVIEW_ID TEXT PRIMARY KEY NOT NULL,
-  USER_ID TEXT,
-  BUSINESS_ID TEXT,
-  STARS NUMERIC,
-  USEFUL NUMERIC,
-  FUNNY NUMERIC,
-  COOL NUMERIC,
-  REVIEW TEXT,
-  DATE TEXT
-);
-"""
+    create_table = """
+    CREATE TABLE IF NOT EXISTS REVIEWS (
+      REVIEW_ID TEXT PRIMARY KEY NOT NULL,
+      USER_ID TEXT,
+      BUSINESS_ID TEXT,
+      STARS NUMERIC,
+      USEFUL NUMERIC,
+      FUNNY NUMERIC,
+      COOL NUMERIC,
+      REVIEW TEXT,
+      DATE TEXT
+    );
+    """
 
-database_path = Path(__file__).parents[2] / 'data/reviews.sqlite'
+    database_path = Path(__file__).parents[2] / 'data/reviews.sqlite'
 
-connection = create_connection(database_path)
-execute_query(connection, create_table)
+    connection = create_connection(database_path)
+    execute_query(connection, create_table)
 
-download_path = get_filepath()
-local_ids = get_req_ids()
+    download_path = get_filepath()
+    local_ids = get_req_ids()
 
-with open(download_path, 'r') as f:
-    total_rows = 0
-    total_errors = 0
-    for row in rows(f):
-        conv_list = error_list = list()
-        conv = row.split('\n')
+    with open(download_path, 'r') as f:
+        total_rows = 0
+        total_errors = 0
+        for row in rows(f):
+            conv_list = error_list = list()
+            conv = row.split('\n')
 
-        for c in conv:
-            try:
-                j = json.loads(c)
-                conv_list.append(j)
-            except:
-                error_list.append(c)
+            for c in conv:
+                try:
+                    j = json.loads(c)
+                    conv_list.append(j)
+                except:
+                    error_list.append(c)
 
-        total_errors += len(error_list)
+            total_errors += len(error_list)
 
-        if len(conv_list) > 0 and all([isinstance(c, dict) for c in conv_list]):
-            df = pd.DataFrame(conv_list)
-            df.columns = [_.upper() for _ in df.columns]
-            df = df.rename(columns={'TEXT': 'REVIEW'})
-            # df = df[df.BUSINESS_ID.isin(local_ids)]
-            if len(df) > 0:
-                df.to_sql(name='REVIEWS', con=connection, index=False, if_exists='append')
-                total_rows += df.shape[0]
+            if len(conv_list) > 0 and all([isinstance(c, dict) for c in conv_list]):
+                df = pd.DataFrame(conv_list)
+                df.columns = [_.upper() for _ in df.columns]
+                df = df.rename(columns={'TEXT': 'REVIEW'})
+                # df = df[df.BUSINESS_ID.isin(local_ids)]
+                if len(df) > 0:
+                    df.to_sql(name='REVIEWS', con=connection, index=False, if_exists='append')
+                    total_rows += df.shape[0]
